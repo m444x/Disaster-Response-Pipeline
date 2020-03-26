@@ -3,6 +3,16 @@ import pandas as pd
 from sqlalchemy import create_engine
     
 def load_data(messages_filepath, categories_filepath):
+    """ Load messages and categories from 2 CSV Files
+        and merge them in one Dataframe by ID.
+    
+    Args:
+        messages_filepath: CSV File. Filepath of Messages
+        categories_filepath: CSV File. Filepath of Categories
+    
+    Returns:
+        df: Dataframe. Merged Dataframe with messages and categories
+    """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, on='id')
@@ -10,6 +20,18 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """ Cleans a Dataframe with the following steps:
+        - Split categories into separate category columns.
+        - Convert category values to just numbers 0 or 1.
+        - Replace categories column with new category columns.
+        - Remove duplicates
+    
+    Args:
+        df: Dataframe. Merged Dataframe with messages and categories
+    
+    Returns:
+        df: Dataframe. Cleaned Datframe with added columns for each categorie
+    """
     categories = df['categories'].str.split(';', expand=True)
     row = categories.iloc[0]
     category_colnames = row.str.split('-').str.get(0)
@@ -29,7 +51,13 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
-
+    """ Saves the dataset into an sqlite database.
+    
+    Args:
+        df: Dataframe. Cleaned Dataframe with messages and categories
+        database_filename: String. Filename for database
+    
+    """
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('messages_and_categories', engine, index=False, if_exists='replace') 
 
