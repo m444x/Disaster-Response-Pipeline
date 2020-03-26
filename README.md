@@ -55,7 +55,10 @@ $ python run.py
 
 Go to http://0.0.0.0:3001/
 
+#### Screenshots
+![](https://github.com/m444x/Disaster-Response-Pipeline/blob/master/disaster-response-project1.png)
+![](https://github.com/m444x/Disaster-Response-Pipeline/blob/master/disaster-response-project2.png)
 ## Licensing
-Udacity for starter code
-Figure Eight for training data
-MIT
+- Udacity for starter code
+- Figure Eight for training data
+- MIT
