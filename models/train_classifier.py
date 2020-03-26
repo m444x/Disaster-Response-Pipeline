@@ -23,6 +23,17 @@ from sklearn.metrics import classification_report
 
 
 def load_data(database_filepath):
+    """ Load messages and categories from a SQLite database
+        and returns feature and target variables X and Y
+    
+    Args:
+        database_filepath: String. Filepath of database
+    
+    Returns:
+        X: Dataframe. Feature-Dataframe with messages
+        Y: Dataframe. Target-Dataframe with categories
+        Y.keys(): List. List of column names for Y-Dataframe
+    """
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table('messages_and_categories', engine)
     X = df['message']
@@ -31,25 +42,42 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    # Normalize text
-    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-
-    # Tokenize text
-    words = text.split()
+    """ Tokenization function for processing the text data
+        with the following steps
+        # Normalize text
+        # Tokenize text
+        # Remove stop words
+        # Reduce words to their root form
+        # Lemmatize verbs by specifying pos
+        
+    Args:
+        text: String. One message
     
-    # Remove stop words
+    Returns:
+        lemmed: List. Tokenized and lemmed list of words
+    """
+    
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    words = text.split() 
     words = [w for w in words if w not in stopwords.words("english")]
     
-    # Reduce words to their root form
     lemmed = [WordNetLemmatizer().lemmatize(w) for w in words]
-    
-    # Lemmatize verbs by specifying pos
     lemmed = [WordNetLemmatizer().lemmatize(w, pos='v') for w in lemmed]
     
     return lemmed
 
 
 def build_model():
+    """ Build a machine learning pipeline in Pipeline Format 
+        with CountVectorizer as input and a MultiOutputClassifier 
+        with a RandomForestClassifier as output
+        
+    Args:
+    
+    Returns:
+        pipeline: Pipeline. Machine learning pipeline
+    """
+    
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -59,12 +87,32 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """ Evaluates the model with a testing Dataset. Report the f1 score, 
+    precision and recall for each output category of the dataset on the console
+        
+    Args:
+        model: Model. Trained model
+        X_test: Array. Testing set of messages
+        Y_test: Array. Testing set of correct categories
+        category_names: List. Names of the columns for output
+    Returns:
+   
+    """
     y_pred = model.predict(X_test)
     print(classification_report(Y_test, y_pred, target_names=category_names))
     pass
 
 
 def save_model(model, model_filepath):
+    """ Save the model to a pickle file
+    
+    Args:
+        model: Model. Model to save
+        model_filepath: String. Filepath of pickle file
+    
+    Returns:
+
+    """
     temp = open(model_filepath,'wb')
     pickle.dump(model, temp)
     temp.close()
